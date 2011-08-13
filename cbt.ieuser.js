@@ -16,6 +16,39 @@ Notes:
 Список фреймов - top.frames[]
 Правда неизвестно, можно ли через них манипулировать контентом.
 
+========================== Чат ==========================
+
+Пишем в чат:
+1) добавляем в поле:
+$(top.frames[10].document.body).find('#T2 input').val('test\n\r')
+2) отправляем
+$(top.frames[10].document.body).find('#F1').submit();
+
+Добавить html в лог чата:
+top.Chat.am('html')
+
+Добавляем вкладку:
+top.Chat.Self.arrTabs['cbt'] = top.Chat.Self.oTab.AddTab('1','cbt','1') //не знаю зачем 1 и 3 параметры
+top.Chat.Self.arrTabs['cbt'].Show()
+
+Помечаем цветом вкладку
+top.Chat.Self.arrTabs['chat'].Mark()
+
+Чат object top.Chat
+Методы:
+	Clear() - Очистка
+	am(text) - добавить в лог чата
+	sml(smile) - добавить смайлик smile['code'] = 'susel'
+	self:
+		AddLogs(a)
+		AddMessage(r) - Раскрашенные сообщения
+		ArrLogs
+		ArrTabs
+		CtxMenu() - КОнтекстное меню
+		CtxMenuHide()
+		oTabs:
+			Методы...
+
 ========================== Бой ==========================
 
 Кнопка хода: $('.UserBattleCommit').click();
@@ -26,6 +59,9 @@ Notes:
 		setTimeout(function() {fight()} , 2000);
 	}
 
+
+frames['batle'] - Лог боя
+	
 ======================== Пещеры =========================
 
 Карта перемещений
@@ -101,8 +137,8 @@ $(top.frames[main_uid].document.body).find('a')[2].click() - Подбор
 		["","","","",  "","d37","","","d37","","","d157","d","d135",  "","","","",],
 		["","","","",  "d157","d","d15","d15","d","d135","","","d37","",  "","","","",],
 		["","","","",  "","d37","","","d37","","","d17","d","d13",  "","","","",],
-		["","","","",  "","d37","","","d37","","","d7","d","d3",  ,"","","","",],
-		["","","","",  "","d357","","","d357","","","d57","d5","d53",  ,"","","","",],
+		["","","","",  "","d37","","","d37","","","d7","d","d3", "","","","",],
+		["","","","",  "","d357","","","d357","","","d57","d5","d35", "","","","",],
 		["","","","","","","","","","","","","","","","","","",],
 		["","","","","","","","","","","","","","","","","","",],
 		["","","","","","","","","","","","","","","","","","",],
@@ -119,12 +155,23 @@ $(top.frames[main_uid].document.body).find('a')[2].click() - Подбор
 	*/
 	function cbt_get_context()
 	{
-		if(top.frames[main_uid].location.pathname == '/battle.pl')
+		battle_re = /battle\d*.pl/i
+		dungeon_re = /dungeon\d*.pl/i
+		
+		if(battle_re.test(top.frames[main_uid].location.pathname))
 			return('battle');
-		if(top.frames[main_uid].location.pathname == '/dungeon2.pl')
+		if(dungeon_re.test(top.frames[main_uid].location.pathname))
 			return('dungeon');
 		if(top.frames[main_uid].location.pathname == '/main.pl')
 			return('main');
+	}
+	
+	/*
+		Обработчик пещер
+	*/
+	function cbt_dungeon()
+	{
+		cbt_dungeon_get_coordinates();
 	}
 	
 	
@@ -170,6 +217,13 @@ $(top.frames[main_uid].document.body).find('a')[2].click() - Подбор
 		document.title = ' [' + coordinates + ']';
 	}
 	
+	//Инициализация вкладки сообщений
+	function cbt_init_tab()
+	{
+		top.Chat.Self.arrTabs['cbt'] = top.Chat.Self.oTab.AddTab('1','cbt','1'); //не знаю зачем 1 и 3 параметры
+		top.Chat.Self.arrTabs['cbt'].Show();
+		return(top.Chat.Self.arrTabs['cbt'])
+	}
 	
 	//Main
 	//@todo: Переделать main loop. (Убрать. Обрабатывать события изменения фреймов, если это возможно)
@@ -188,11 +242,13 @@ $(top.frames[main_uid].document.body).find('a')[2].click() - Подбор
 				*/
 				try
 				{
-					cbt_dungeon_get_coordinates();
+					cbt_dungeon();
 				}
 				catch(e)
 				{
 					alert(e);
+					//Если случилась кака, запускаем с задержкой (dungeon - на входе в пещеру, валится.)
+					//setTimeout(function (){cbt_dungeon()}, 1000);
 				}
 			}
 			cbt_mainframe_location = top.frames[main_uid].location.href;
@@ -204,11 +260,21 @@ $(top.frames[main_uid].document.body).find('a')[2].click() - Подбор
 	}
 	
 	
+	//Внутренняя инициализация
+	function cbt_inti()
+	{
+		//tab
+		cbt_init_tab();
+		//mainloop
+		main();
+	}
+	
+	
 	//Инициализация
 	//@todo: Переделать инициализацию не по времени, а по состоянию загрузки фреймов.
 	function cbt()
 	{
-		setTimeout(function() {main()} , 3000);
+		setTimeout(function() {cbt_inti()} , 3000);
 	}
 	
 	$(document).ready(function()
