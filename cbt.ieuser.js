@@ -172,6 +172,7 @@ $(top.frames[main_uid].document.body).find('a')[2].click() - Подбор
 	function cbt_dungeon()
 	{
 		cbt_dungeon_get_coordinates();
+		cbt_log(cbt_dungeon_get_path());
 	}
 	
 	
@@ -217,12 +218,50 @@ $(top.frames[main_uid].document.body).find('a')[2].click() - Подбор
 		document.title = ' [' + coordinates + ']';
 	}
 	
+	
+	function cbt_dungeon_walk(path)
+	{
+		
+	}
+	
+	
+	function cbt_dungeon_get_path()
+	{
+		var moves_list = [];
+		var moves = $(top.frames[main_uid].document.body).find('#MoveMap AREA');
+		re = /path=([m][1357])/i;
+		for(var i=0; i<moves.length; i++)
+		{
+			m = moves[i].href.match(re);
+			if(m)
+				if(m.length>1)
+					moves_list.push(m[1]);
+		}
+		return(moves_list)
+	}
+	
+	
+	//Возможно следует добавить обертку в <div> для каждого сообщения
+	function cbt_log(html)
+	{
+		cbt_am(html + '<br/>')
+	}
+	
+	function cbt_am(html)
+	{
+		var log = $(top.Chat.Self.arrTabs['cbt'].document.body).find('#cbt_tab').html();
+		$(top.Chat.Self.arrTabs['cbt'].document.body).find('#cbt_tab').html(log + '' + html);
+		top.Chat.Self.arrTabs['cbt'].Mark();
+	}
+	
 	//Инициализация вкладки сообщений
 	function cbt_init_tab()
 	{
 		top.Chat.Self.arrTabs['cbt'] = top.Chat.Self.oTab.AddTab('1','cbt','1'); //не знаю зачем 1 и 3 параметры
 		top.Chat.Self.arrTabs['cbt'].Show();
-		return(top.Chat.Self.arrTabs['cbt'])
+		top.Chat.Self.arrTabs['cbt'].Insert('<div id="cbt_tab" style="owerflow: auto;"></div>');
+		cbt_log('Init cbt - [done]');
+		return(top.Chat.Self.arrTabs['cbt']);
 	}
 	
 	//Main
@@ -246,9 +285,13 @@ $(top.frames[main_uid].document.body).find('a')[2].click() - Подбор
 				}
 				catch(e)
 				{
-					alert(e);
+					//alert(e.name);
 					//Если случилась кака, запускаем с задержкой (dungeon - на входе в пещеру, валится.)
-					//setTimeout(function (){cbt_dungeon()}, 1000);
+					try
+					{
+						setTimeout(function (){cbt_dungeon()}, 1000);
+					}
+					catch(e){}
 				}
 			}
 			cbt_mainframe_location = top.frames[main_uid].location.href;
@@ -256,7 +299,7 @@ $(top.frames[main_uid].document.body).find('a')[2].click() - Подбор
 		
 		
 		//main loop 0.5 sec step
-		setTimeout(function() {main()} , 500);
+		setTimeout(function() {main()} , 1000);
 	}
 	
 	
