@@ -91,7 +91,7 @@ $(top.frames[main_uid].document.body).find('#MoveMap area') - Список эл�
 $(top.frames[main_uid].document.body).find('area')[0].click()
 2) Если действий с элементом несколько, (действие идет через меню. (Боты, нападения)) Ищем появившиеся жлементы меню.
 $(top.frames[main_uid].document.body).find('a') Такого типа:
-"<A onclick="return p_action('attack=1&amp;use','1.4.2.194-7')" href="http://sandcity.combats.com/dungeon2.pl?rnd=0.65379233024434&amp;path=m1#">Напасть</A>" 
+"<A onclick="return p_action('attack=1&amp;use','1.4.2.194-7')" href="http://*.com/dungeon2.pl?rnd=0.65379233024434&amp;path=m1#">Напасть</A>" 
 Кликаем.
 >> $(top.frames[main_uid].document.body).find('a')[2].click() 
 
